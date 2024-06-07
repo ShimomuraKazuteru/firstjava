@@ -11,6 +11,7 @@ let score = 0;
 let timeLeft = 20;
 let gameInterval;
 let moveInterval;
+let startTime;
 
 function moveTarget() {
   const x = Math.random() * (window.innerWidth - target.clientWidth);
@@ -31,6 +32,7 @@ function startGame() {
   console.log("Game started"); // デバッグ用
   score = 0;
   timeLeft = 20;
+  startTime = Date.now();
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time left: ${timeLeft}`;
   const highScore = parseInt(localStorage.getItem('highScore')) || 0; // 最高スコアを取得
@@ -46,7 +48,8 @@ function startGame() {
 }
 
 function updateGame() {
-  timeLeft--;
+  const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+  timeLeft = 20 - elapsedTime;
   timerDisplay.textContent = `Time left: ${timeLeft}`;
 
   if (timeLeft <= 0) {
