@@ -1,76 +1,70 @@
+// script.js
+let score = 0;
+let timeLeft = 20;
+let highScore = 0;
+let gameInterval;
+let gameRunning = false;
+
 const target = document.getElementById('target');
-const scoreDisplay = document.getElementById('score');
-const timerDisplay = document.getElementById('timer');
-const highScoreDisplay = document.getElementById('highscore'); 
-const messageDisplay = document.getElementById('message');
+const scoreElement = document.getElementById('score');
+const timerElement = document.getElementById('timer');
+const messageElement = document.getElementById('message');
+const highScoreElement = document.getElementById('highscore');
 const continueButton = document.getElementById('continue-button');
 const hitSound = document.getElementById('hit-sound');
 const moveSound = document.getElementById('move-sound');
 
-let score = 0;
-let timeLeft = 20;
-let gameInterval;
-let moveInterval;
-
-function moveTarget() {
-  const x = Math.random() * (window.innerWidth - target.clientWidth);
-  const y = Math.random() * (window.innerHeight - target.clientHeight);
-  target.style.left = `${x}px`;
-  target.style.top = `${y}px`;
-  moveSound.play();
-}
-
-function handleClick() {
-  score++;
-  scoreDisplay.textContent = `Score: ${score}`;
-  hitSound.play();
-  moveTarget();
-}
-
 function startGame() {
-  console.log("Game started"); // デバッグ用
   score = 0;
   timeLeft = 20;
-  scoreDisplay.textContent = `Score: ${score}`;
-  timerDisplay.textContent = `Time left: ${timeLeft}`;
-  const highScore = parseInt(localStorage.getItem('highScore')) || 0; // 最高スコアを取得
-  highScoreDisplay.textContent = `High Score: ${highScore}`; // 最高スコアを表示
-  messageDisplay.textContent = '';
+  gameRunning = true;
+  messageElement.textContent = '';
   continueButton.style.display = 'none';
-  target.style.pointerEvents = 'auto'; 
-  target.addEventListener('click', handleClick);
+  scoreElement.textContent = `Score: ${score}`;
+  timerElement.textContent = `Time left: ${timeLeft}`;
+  highScoreElement.textContent = `High Score: ${highScore}`;
   moveTarget();
-  
-  gameInterval = setInterval(() => {
-    timeLeft--;
-    timerDisplay.textContent = `Time left: ${timeLeft}`;
-    if (timeLeft <= 0) {
-      clearInterval(gameInterval);
-      clearInterval(moveInterval);
-      endGame();
-    }
-  }, 1000);
-
-  // ターゲットが2秒ごとに自動で移動する
-  moveInterval = setInterval(() => {
-    moveTarget();
-  }, 1200);
+  gameInterval = setInterval(updateGame, 1000);
 }
 
 function endGame() {
-  messageDisplay.textContent = '';
+  gameRunning = false;
+  clearInterval(gameInterval);
+  messageElement.textContent = 'Game Over';
   continueButton.style.display = 'block';
-  target.style.pointerEvents = 'none'; // ターゲットのクリックを無効にする
-  target.removeEventListener('click', handleClick);
-  const highScore = parseInt(localStorage.getItem('highScore')) || 0;
   if (score > highScore) {
-    localStorage.setItem('highScore', score);
-    highScoreDisplay.textContent = `High Score: ${score}`; // 最高スコアを更新
+    highScore = score;
+    highScoreElement.textContent = `High Score: ${highScore}`;
   }
 }
 
-window.onload = () => {
-  continueButton.style.display = 'block';
-  const highScore = parseInt(localStorage.getItem('highScore')) || 0; // 最高スコアを取得
-  highScoreDisplay.textContent = `High Score: ${highScore}`; // 最高スコアを表示
-};
+function updateGame() {
+  if (timeLeft > 0) {
+    timeLeft--;
+    timerElement.textContent = `Time left: ${timeLeft}`;
+  } else {
+    endGame();
+  }
+}
+
+function moveTarget() {
+  if (!gameRunning) return;
+  const gameArea = document.getElementById('game');
+  const maxWidth = gameArea.clientWidth - target.offsetWidth;
+  const maxHeight = gameArea.clientHeight - target.offsetHeight;
+  const randomX = Math.floor(Math.random() * maxWidth);
+  const randomY = Math.floor(Math.random() * maxHeight);
+  target.style.left = `${randomX}px`;
+  target.style.top = `${randomY}px`;
+  moveSound.play();
+}
+
+target.addEventListener('click', () => {
+  if (!gameRunning) return;
+  score++;
+  scoreElement.textContent = `Score: ${score}`;
+  hitSound.play();
+  moveTarget();
+});
+
+continueButton.addEventListener('click', startGame);
