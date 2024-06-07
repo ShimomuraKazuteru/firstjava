@@ -43,7 +43,7 @@ function startGame() {
   target.addEventListener('click', handleClick);
   moveTarget();
   
-  gameInterval = setInterval(updateGame, 1000); // 毎秒呼び出されるように設定
+  gameInterval = requestAnimationFrame(updateGame); // 毎秒呼び出されるように設定
   moveInterval = setInterval(moveTarget, 2000); // ターゲットが2秒ごとに自動で移動する
 }
 
@@ -53,9 +53,11 @@ function updateGame() {
   timerDisplay.textContent = `Time left: ${timeLeft}`;
 
   if (timeLeft <= 0) {
-    clearInterval(gameInterval);
+    cancelAnimationFrame(gameInterval);
     clearInterval(moveInterval);
     endGame();
+  } else {
+    gameInterval = requestAnimationFrame(updateGame); // 再度呼び出し
   }
 }
 
