@@ -16,7 +16,7 @@ function moveTarget() {
   const y = Math.random() * (window.innerHeight - target.clientHeight);
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
-  
+
   const moveSound = new Audio('laugh.mp3');
   moveSound.play().catch(error => console.log('Move sound play error:', error));
 }
@@ -24,10 +24,15 @@ function moveTarget() {
 function handleClick() {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
-  
+  console.log('Target clicked'); // デバッグ用にクリックイベントをログに出力
+
   const hitSound = new Audio('hit.wav');
-  hitSound.play().catch(error => console.log('Hit sound play error:', error));
-  
+  hitSound.addEventListener('canplaythrough', event => {
+    console.log('Playing hit sound'); // デバッグ用
+    hitSound.play().catch(error => console.log('Hit sound play error:', error));
+  });
+  hitSound.load(); // 音声ファイルの読み込みを開始
+
   moveTarget();
 }
 
