@@ -11,7 +11,6 @@ let score = 0;
 let timeLeft = 20;
 let gameInterval;
 let moveInterval;
-let timerStart;
 
 function moveTarget() {
   const x = Math.random() * (window.innerWidth - target.clientWidth);
@@ -32,7 +31,6 @@ function startGame() {
   console.log("Game started"); // デバッグ用
   score = 0;
   timeLeft = 20;
-  timerStart = Date.now();
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time left: ${timeLeft}`;
   const highScore = parseInt(localStorage.getItem('highScore')) || 0; // 最高スコアを取得
@@ -43,13 +41,12 @@ function startGame() {
   target.addEventListener('click', handleClick);
   moveTarget();
   
-  gameInterval = setInterval(updateGame, 100);
-  moveInterval = setInterval(moveTarget, 1200); // ターゲットが2秒ごとに自動で移動する
+  gameInterval = setInterval(updateGame, 1000); // 毎秒呼び出されるように設定
+  moveInterval = setInterval(moveTarget, 2000); // ターゲットが2秒ごとに自動で移動する
 }
 
 function updateGame() {
-  const elapsed = Math.floor((Date.now() - timerStart) / 1000);
-  timeLeft = 20 - elapsed;
+  timeLeft--;
   timerDisplay.textContent = `Time left: ${timeLeft}`;
 
   if (timeLeft <= 0) {
