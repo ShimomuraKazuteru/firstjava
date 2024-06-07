@@ -4,6 +4,8 @@ const timerDisplay = document.getElementById('timer');
 const highScoreDisplay = document.getElementById('highscore'); 
 const messageDisplay = document.getElementById('message');
 const continueButton = document.getElementById('continue-button');
+const hitSound = new Audio('hit.wav');
+const moveSound = new Audio('laugh.mp3');
 
 let score = 0;
 let timeLeft = 20;
@@ -16,23 +18,15 @@ function moveTarget() {
   const y = Math.random() * (window.innerHeight - target.clientHeight);
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
-
-  const moveSound = new Audio('laugh.mp3');
+  moveSound.currentTime = 0; // 再生位置をリセット
   moveSound.play().catch(error => console.log('Move sound play error:', error));
 }
 
 function handleClick() {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
-  console.log('Target clicked'); // デバッグ用にクリックイベントをログに出力
-
-  const hitSound = new Audio('hit.wav');
-  hitSound.addEventListener('canplaythrough', event => {
-    console.log('Playing hit sound'); // デバッグ用
-    hitSound.play().catch(error => console.log('Hit sound play error:', error));
-  });
-  hitSound.load(); // 音声ファイルの読み込みを開始
-
+  hitSound.currentTime = 0; // 再生位置をリセット
+  hitSound.play().catch(error => console.log('Hit sound play error:', error));
   moveTarget();
 }
 
