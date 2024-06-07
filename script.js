@@ -18,14 +18,15 @@ function moveTarget() {
   const y = Math.random() * (window.innerHeight - target.clientHeight);
   target.style.left = `${x}px`;
   target.style.top = `${y}px`;
-  moveSound.play();
+  moveSound.currentTime = 0; // 再生位置をリセット
+  moveSound.play().catch(error => console.log('Move sound play error:', error));
 }
 
 function handleClick() {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
   hitSound.currentTime = 0; // 再生位置をリセット
-  hitSound.play().catch(error => console.log('Audio play error:', error));
+  hitSound.play().catch(error => console.log('Hit sound play error:', error));
   moveTarget();
 }
 
