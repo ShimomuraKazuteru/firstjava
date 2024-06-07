@@ -11,6 +11,7 @@ let score = 0;
 let timeLeft = 20;
 let gameInterval;
 let moveInterval;
+let timerStart;
 
 function moveTarget() {
   const x = Math.random() * (window.innerWidth - target.clientWidth);
@@ -31,6 +32,7 @@ function startGame() {
   console.log("Game started"); // デバッグ用
   score = 0;
   timeLeft = 20;
+  timerStart = Date.now();
   scoreDisplay.textContent = `Score: ${score}`;
   timerDisplay.textContent = `Time left: ${timeLeft}`;
   const highScore = parseInt(localStorage.getItem('highScore')) || 0; // 最高スコアを取得
@@ -41,24 +43,24 @@ function startGame() {
   target.addEventListener('click', handleClick);
   moveTarget();
   
-  gameInterval = setInterval(() => {
-    timeLeft--;
-    timerDisplay.textContent = `Time left: ${timeLeft}`;
-    if (timeLeft <= 0) {
-      clearInterval(gameInterval);
-      clearInterval(moveInterval);
-      endGame();
-    }
-  }, 1000);
+  gameInterval = setInterval(updateGame, 100);
+  moveInterval = setInterval(moveTarget, 1200); // ターゲットが2秒ごとに自動で移動する
+}
 
-  // ターゲットが2秒ごとに自動で移動する
-  moveInterval = setInterval(() => {
-    moveTarget();
-  }, 1200);
+function updateGame() {
+  const elapsed = Math.floor((Date.now() - timerStart) / 1000);
+  timeLeft = 20 - elapsed;
+  timerDisplay.textContent = `Time left: ${timeLeft}`;
+
+  if (timeLeft <= 0) {
+    clearInterval(gameInterval);
+    clearInterval(moveInterval);
+    endGame();
+  }
 }
 
 function endGame() {
-  messageDisplay.textContent = '';
+  messageDisplay.textContent = 'Game Over';
   continueButton.style.display = 'block';
   target.style.pointerEvents = 'none'; // ターゲットのクリックを無効にする
   target.removeEventListener('click', handleClick);
