@@ -24,7 +24,8 @@ function moveTarget() {
 function handleClick() {
   score++;
   scoreDisplay.textContent = `Score: ${score}`;
-  hitSound.play();
+  hitSound.currentTime = 0; // 再生位置をリセット
+  hitSound.play().catch(error => console.log('Audio play error:', error));
   moveTarget();
 }
 
