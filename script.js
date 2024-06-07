@@ -1,70 +1,76 @@
-// script.js
-let score = 0;
-let timeLeft = 20;
-let highScore = 0;
-let gameInterval;
-let gameRunning = false;
-
 const target = document.getElementById('target');
-const scoreElement = document.getElementById('score');
-const timerElement = document.getElementById('timer');
-const messageElement = document.getElementById('message');
-const highScoreElement = document.getElementById('highscore');
+const scoreDisplay = document.getElementById('score');
+const timerDisplay = document.getElementById('timer');
+const highScoreDisplay = document.getElementById('highscore'); 
+const messageDisplay = document.getElementById('message');
 const continueButton = document.getElementById('continue-button');
 const hitSound = document.getElementById('hit-sound');
 const moveSound = document.getElementById('move-sound');
 
-function startGame() {
-  score = 0;
-  timeLeft = 20;
-  gameRunning = true;
-  messageElement.textContent = '';
-  continueButton.style.display = 'none';
-  scoreElement.textContent = `Score: ${score}`;
-  timerElement.textContent = `Time left: ${timeLeft}`;
-  highScoreElement.textContent = `High Score: ${highScore}`;
-  moveTarget();
-  gameInterval = setInterval(updateGame, 1000);
-}
-
-function endGame() {
-  gameRunning = false;
-  clearInterval(gameInterval);
-  messageElement.textContent = 'Game Over';
-  continueButton.style.display = 'block';
-  if (score > highScore) {
-    highScore = score;
-    highScoreElement.textContent = `High Score: ${highScore}`;
-  }
-}
-
-function updateGame() {
-  if (timeLeft > 0) {
-    timeLeft--;
-    timerElement.textContent = `Time left: ${timeLeft}`;
-  } else {
-    endGame();
-  }
-}
+let score = 0;
+let timeLeft = 20;
+let gameInterval;
+let moveInterval;
 
 function moveTarget() {
-  if (!gameRunning) return;
-  const gameArea = document.getElementById('game');
-  const maxWidth = gameArea.clientWidth - target.offsetWidth;
-  const maxHeight = gameArea.clientHeight - target.offsetHeight;
-  const randomX = Math.floor(Math.random() * maxWidth);
-  const randomY = Math.floor(Math.random() * maxHeight);
-  target.style.left = `${randomX}px`;
-  target.style.top = `${randomY}px`;
+  const x = Math.random() * (window.innerWidth - target.clientWidth);
+  const y = Math.random() * (window.innerHeight - target.clientHeight);
+  target.style.left = `${x}px`;
+  target.style.top = `${y}px`;
   moveSound.play();
 }
 
-target.addEventListener('click', () => {
-  if (!gameRunning) return;
+function handleClick() {
   score++;
-  scoreElement.textContent = `Score: ${score}`;
+  scoreDisplay.textContent = `Score: ${score}`;
   hitSound.play();
   moveTarget();
-});
+}
 
-continueButton.addEventListener('click', startGame);
+function startGame() {
+  console.log("Game started"); // デバッグ用
+  score = 0;
+  timeLeft = 20;
+  scoreDisplay.textContent = `Score: ${score}`;
+  timerDisplay.textContent = `Time left: ${timeLeft}`;
+  const highScore = parseInt(localStorage.getItem('highScore')) || 0; // 最高スコアを取得
+  highScoreDisplay.textContent = `High Score: ${highScore}`; // 最高スコアを表示
+  messageDisplay.textContent = '';
+  continueButton.style.display = 'none';
+  target.style.pointerEvents = 'auto'; 
+  target.addEventListener('click', handleClick);
+  moveTarget();
+  
+  gameInterval = setInterval(() => {
+    timeLeft--;
+    timerDisplay.textContent = `Time left: ${timeLeft}`;
+    if (timeLeft <= 0) {
+      clearInterval(gameInterval);
+      clearInterval(moveInterval);
+      endGame();
+    }
+  }, 1000);
+
+  // ターゲットが2秒ごとに自動で移動する
+  moveInterval = setInterval(() => {
+    moveTarget();
+  }, 1200);
+}
+
+function endGame() {
+  messageDisplay.textContent = '';
+  continueButton.style.display = 'block';
+  target.style.pointerEvents = 'none'; // ターゲットのクリックを無効にする
+  target.removeEventListener('click', handleClick);
+  const highScore = parseInt(localStorage.getItem('highScore')) || 0;
+  if (score > highScore) {
+    localStorage.setItem('highScore', score);
+    highScoreDisplay.textContent = `High Score: ${score}`; // 最高スコアを更新
+  }
+}
+
+window.onload = () => {
+  continueButton.style.display = 'block';
+  const highScore = parseInt(localStorage.getItem('highScore')) || 0; // 最高スコアを取得
+  highScoreDisplay.textContent = `High Score: ${highScore}`; // 最高スコアを表示
+};
